@@ -10,6 +10,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Trigger endpoint
+       - name: Trigger endpoint
         run: |
-          curl -X GET https://arbitrage-monitor-bot.onrender.com
+          curl -X POST https://arbitrage-monitor-bot.onrender.com/post-on-ping
