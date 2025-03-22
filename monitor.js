@@ -85,18 +85,23 @@ async function processQuote(quote) {
 }
 
 // Create HTTP server for Render deployment
-const server = http.createServer((req, res) => {
-  res.writeHead(200, { 'Content-Type': 'text/plain' });
-  res.end('Server is running!');
+const server = http.createServer(async (req, res) => {
+  if (req.url === '/post-on-ping' && req.method === 'POST') {
+    const quote = await getTokenTransferQuote();
+    await processQuote(quote);
+
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ message: 'Quote processed successfully' }));
+  } else if (req.url === '/') {
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
+    res.end('Server is running!');
+  } else {
+    res.writeHead(404, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ error: 'Not Found' }));
+  }
 });
 
 // Start the server
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
-
-// Execute the function and process response
-(async () => {
-  const quote = await getTokenTransferQuote();
-  await processQuote(quote);
-})();
