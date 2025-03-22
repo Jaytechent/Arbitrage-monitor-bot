@@ -1,5 +1,8 @@
 require('dotenv').config();
+const http = require('http');
 const fetch = require('node-fetch');
+
+const PORT = process.env.PORT || 3000; // Render requires a running server
 
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const CHAT_ID = process.env.CHAT_ID;
@@ -14,8 +17,8 @@ async function sendTelegramMessage(message) {
       body: JSON.stringify({
         chat_id: CHAT_ID,
         text: message,
-        parse_mode: 'Markdown'
-      })
+        parse_mode: 'Markdown',
+      }),
     });
   } catch (error) {
     console.error('Error sending Telegram message:', error.message);
@@ -69,9 +72,8 @@ async function processQuote(quote) {
   const difference = convertedToAmount - fromAmount;
   const percentageChange = (difference / fromAmount) * 100;
 
-  // Add visual indicators for increase or decrease
-  const changeIndicator = difference > 0 ? "✅✅✅" : "❌❌❌";
-  const changeText = difference > 0 ? "Increase" : "Decrease";
+  const changeIndicator = difference > 0 ? '✅✅✅' : '❌❌❌';
+  const changeText = difference > 0 ? 'Increase' : 'Decrease';
 
   const message = `🚀 *ARBITRAGE AI RESULT FROM JUMPER USDC TO MIWETH* 🚀\n\n`
     + `💰 *Amount:* ${fromAmount} USDC\n`
@@ -81,6 +83,17 @@ async function processQuote(quote) {
   console.log(message);
   await sendTelegramMessage(message);
 }
+
+// Create HTTP server for Render deployment
+const server = http.createServer((req, res) => {
+  res.writeHead(200, { 'Content-Type': 'text/plain' });
+  res.end('Server is running!');
+});
+
+// Start the server
+server.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
 
 // Execute the function and process response
 (async () => {
