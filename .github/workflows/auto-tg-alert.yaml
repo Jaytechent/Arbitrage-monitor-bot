@@ -1,0 +1,15 @@
+name: Auto-trigger-TG
+
+on:
+  schedule:
+    - cron: "0 */4 * * *"  # Triggers every 2 hours
+  workflow_dispatch:  # Allows manual triggering
+
+jobs:
+  trigger-bot:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Trigger endpoint
+        run: |
+          curl -X GET https://arbitrage-monitor-bot.onrender.com
