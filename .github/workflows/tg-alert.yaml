@@ -2,7 +2,7 @@ name: Auto-TG-alert
 
 on:
   schedule:
-    - cron: "0 */4 * * *"  # Triggers every 2 hours
+    - cron: "0 */1 * * *"  # Triggers every 2 hours
   workflow_dispatch:  # Allows manual triggering
 
 jobs:
