@@ -1,3 +1,63 @@
+// const fetch = require('node-fetch');
+
+// async function getTokenTransferQuote() {
+//   const url = new URL('https://li.quest/v1/quote');
+
+//   // Extracted parameters
+//   const params = {
+//     fromAmount: '10',
+//     fromChain: '59144',
+//     fromToken: '0x176211869cA2b568f2A7D4EE941E073a821EE1ff',
+//     toChain: '59144',
+//     toToken: '0x3478dE5e82431676C87113001bBeeb359cb5eAa5',
+//     fromAddress: '0x0A4938cE5A06333117b0910CC2D57Fbb95Dd9a0e',
+//     toAddress: '0x0A4938cE5A06333117b0910CC2D57Fbb95Dd9a0e',
+//     order: 'FASTEST',
+//     slippage: '0.005',
+//   };
+
+//   // Append query parameters
+//   Object.entries(params).forEach(([key, value]) => url.searchParams.append(key, value));
+
+//   try {
+//     const response = await fetch(url.toString(), {
+//       method: 'GET',
+//       headers: { accept: 'application/json' },
+//     });
+
+//     if (!response.ok) {
+//       const responseText = await response.text();
+//       throw new Error(`API Error: ${response.status} - ${responseText}`);
+//     }
+
+//     const data = await response.json();
+//     return data;
+//   } catch (error) {
+//     console.error('Error fetching quote:', error.message);
+//     return null;
+//   }
+// }
+
+// (async () => {
+//   const quote = await getTokenTransferQuote();
+  
+//   if (quote && quote.estimate) {
+//     const toAmountMin = parseFloat(quote.estimate.toAmountMin);
+//     const priceUSD = parseFloat(quote.action.toToken.priceUSD);
+    
+//     // Convert and multiply
+//     const computedValue = (toAmountMin / 1e12) * priceUSD;
+    
+//     console.log('🚀 ARBITRAGE AI RESULT 🚀');
+//     console.log(`🔹 To Amount Min: ${toAmountMin}`);
+//     console.log(`💰 Price of miweETH: ${priceUSD} USDC`);
+//     console.log(`🔹 To Amount Min / 1e12: ${toAmountMin / 1e12}`);
+//     console.log(`💲 Computed Value (ToAmountMin/1e12 * PriceUSD): ${computedValue} USDC`);
+//   }
+// })();
+
+
+
 require('dotenv').config();
 const http = require('http');
 const fetch = require('node-fetch');
@@ -29,7 +89,7 @@ async function getTokenTransferQuote() {
   const url = new URL('https://li.quest/v1/quote');
 
   const params = {
-    fromAmount: '5',
+    fromAmount: '10',
     fromChain: '59144',
     fromToken: '0x176211869cA2b568f2A7D4EE941E073a821EE1ff',
     toChain: '59144',
@@ -66,20 +126,15 @@ async function processQuote(quote) {
     return;
   }
 
-  const fromAmount = parseFloat(quote.estimate.fromAmount);
   const toAmountMin = parseFloat(quote.estimate.toAmountMin);
-  const convertedToAmount = toAmountMin / 1e9;
-  const difference = convertedToAmount - fromAmount;
-  const percentageChange = (difference / fromAmount) * 100;
+  const priceUSD = parseFloat(quote.action.toToken.priceUSD);
+  const fromAmount = parseFloat(quote.action.fromAmount);
+  const computedValue = (toAmountMin / 1e12) * priceUSD;
+  const tradeResult = computedValue > fromAmount ? '✅ PROFITABLE TRADE ✅' : '❌ NOT PROFITABLE ❌';
 
-  const changeIndicator = difference > 0 ? '✅✅✅' : '❌❌❌';
-  const changeText = difference > 0 ? 'Increase' : 'Decrease';
-
-  const message = `🚀 *ARBITRAGE AI RESULT FROM JUMPER USDC TO MIWETH* 🚀\n\n`
-    + `💰 *Amount:* ${fromAmount} USDC\n`
-    + `🔹 *To Amount Min:* ${toAmountMin}\n`
-    + `${changeIndicator} *${changeText} by* ${Math.abs(percentageChange.toFixed(2))}%, *now at* ${convertedToAmount.toFixed(6)} USDC`;
-
+ 
+  const message = `🚀 ARBITRAGE AI RESULT 🚀\n🔹 Miweth Amount Min: ${toAmountMin}\n💰 Price of miweETH: ${priceUSD} USDC\n🔹 To Amount Min / 1e12: ${toAmountMin / 1e12}\n💲 Computed Value: ${computedValue} USDC\n📊 From Amount: ${fromAmount} USDC\n${tradeResult}`;
+  
   console.log(message);
   await sendTelegramMessage(message);
 }
