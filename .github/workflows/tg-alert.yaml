@@ -1,8 +1,8 @@
-name: Auto-TG-alert
+name: Tg-Alert
 
 on:
   schedule:
-    - cron: "0 */1 * * *"  # Triggers every 2 hours
+    - cron: "0 */2 * * *"  # Triggers every 2 hours
   workflow_dispatch:  # Allows manual triggering
 
 jobs:
@@ -10,6 +10,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-       - name: Trigger endpoint
+      - name: Trigger endpoint
         run: |
           curl -X POST https://arbitrage-monitor-bot.onrender.com/post-on-ping
